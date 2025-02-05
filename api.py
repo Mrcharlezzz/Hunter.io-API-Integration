@@ -1,7 +1,8 @@
-from decouple import config
-from fastapi import FastAPI ,Path ,Body, HTTPException
+from typing import Any, Dict
+
 import httpx
-from typing import  Any, Dict
+from decouple import config
+from fastapi import Body, FastAPI, HTTPException, Path
 
 BASE_URL = "https://api.hunter.io/v2"
 
@@ -18,7 +19,7 @@ def validated_response(response : httpx.Response):
             status_code=response.status_code,
             detail= response.json()
         )
-    
+
     return response.json()
 
 
@@ -59,7 +60,7 @@ def retrieve_lead(
     )
     return validated_response(response)
 
-    
+
 @app.put(
     "/leads/{id}",
     description = "Modify specified fields of a lead"
@@ -85,7 +86,7 @@ def update_lead(
         lead_info
     )
     return validated_response(response)
-    
+
 
 @app.delete(
     "/leads/{id}",
@@ -101,7 +102,7 @@ def delete_lead(
         BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"],
     )
     return validated_response(response)
-    
+
 
 
 
