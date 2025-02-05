@@ -1,8 +1,7 @@
-from typing import Any, Dict
-
 import httpx
 from decouple import config
 from fastapi import Body, FastAPI, HTTPException, Path
+from pydantic import BaseModel
 
 BASE_URL = "https://api.hunter.io/v2"
 
@@ -13,6 +12,13 @@ app = FastAPI(
     docs_url="/docs",  # Custom docs URL
 )
 
+class Lead(BaseModel):
+    email : str
+    first_name: str
+    last_name: str
+    position: str
+    company: str
+
 def validated_response(response : httpx.Response):
     if not response.is_success:
         raise HTTPException(
@@ -22,12 +28,17 @@ def validated_response(response : httpx.Response):
 
     return response.json()
 
+def parse_lead(lead:Lead):
+    data = lead.model_dump()
+    return data
+
 
 @app.post("/leads",
     description = "Create new lead",
 )
+
 def create_lead(
-    lead_info : Dict[str,Any]= Body(
+    lead : Lead= Body(
         title="Fields of the lead",
         example={
             "email": "alexis@reddit.com",
@@ -39,8 +50,9 @@ def create_lead(
     )
 ):
     response = httpx.post(
-        BASE_URL+"/leads?api_key="+config["API_KEY"],
-        lead_info
+        BASE_URL+"/leads",
+        parse_lead(lead),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
@@ -56,7 +68,8 @@ def retrieve_lead(
     )
 ):
     response = httpx.get(
-        BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"]
+        BASE_URL+"/leads/"+str(id),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
@@ -70,8 +83,8 @@ def update_lead(
         title="lead id",
         gt=0
     ),
-    lead_info : Dict[str,Any]= Body(
-        title="Fields of the lead",
+    lead : Lead= Body(
+        title="Fields of the lead to be modified",
         example={
             "email": "alexis@reddit.com",
             "first_name": "Alexis",
@@ -82,8 +95,9 @@ def update_lead(
     )
 ):
     response = httpx.put(
-        BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"],
-        lead_info
+        BASE_URL+"/leads/"+str(id),
+        parse_lead(lead),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
@@ -99,7 +113,8 @@ def delete_lead(
     ),
 ):
     response = httpx.delete(
-        BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"],
+        BASE_URL+"/leads/"+str(id),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
