@@ -23,7 +23,7 @@ def validated_response(response : httpx.Response):
     if not response.is_success:
         raise HTTPException(
             status_code=response.status_code,
-            detail= response.json()
+            detail= response.json()['details']
         )
 
     return response.json()
@@ -33,6 +33,17 @@ def parse_lead(lead:Lead):
     return data
 
 
+def call_hunter(method:str ,url:str, **kwargs):
+    if(method=="get"):
+        return httpx.get(url, **kwargs)
+    elif(method=="post"):
+        return httpx.post(url, **kwargs)
+    elif(method=="put"):
+        return httpx.put(url, **kwargs)
+    elif(method=="delete"):
+        return httpx.delete(url, **kwargs)
+
+
 @app.post("/leads",
     description = "Create new lead",
 )
@@ -40,18 +51,18 @@ def parse_lead(lead:Lead):
 def create_lead(
     lead : Lead= Body(
         title="Fields of the lead",
-        example={
+        examples={
             "email": "alexis@reddit.com",
             "first_name": "Alexis",
             "last_name": "Ohanian",
             "position": "Cofounder",
             "company": "Reddit",
         }
-    )
+    ),
 ):
-    response = httpx.post(
+    response = call_hunter(
         BASE_URL+"/leads",
-        parse_lead(lead),
+        json=parse_lead(lead),
         headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
@@ -65,9 +76,9 @@ def retrieve_lead(
     id:int = Path(
         title="lead id",
         gt=0
-    )
+    ),
 ):
-    response = httpx.get(
+    response = call_hunter(
         BASE_URL+"/leads/"+str(id),
         headers={"X-API-KEY" : config("API_KEY")}
     )
@@ -76,7 +87,7 @@ def retrieve_lead(
 
 @app.put(
     "/leads/{id}",
-    description = "Modify specified fields of a lead"
+    description = "Modify specified fields of a lead",
 )
 def update_lead(
     id:int = Path(
@@ -85,18 +96,18 @@ def update_lead(
     ),
     lead : Lead= Body(
         title="Fields of the lead to be modified",
-        example={
+        examples={
             "email": "alexis@reddit.com",
             "first_name": "Alexis",
             "last_name": "Ohanian",
             "position": "Cofounder",
             "company": "Reddit",
         }
-    )
+    ),
 ):
-    response = httpx.put(
+    response = call_hunter(
         BASE_URL+"/leads/"+str(id),
-        parse_lead(lead),
+        json=parse_lead(lead),
         headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
@@ -112,7 +123,7 @@ def delete_lead(
         gt=0
     ),
 ):
-    response = httpx.delete(
+    response = call_hunter(
         BASE_URL+"/leads/"+str(id),
         headers={"X-API-KEY" : config("API_KEY")}
     )
