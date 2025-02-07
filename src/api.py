@@ -42,6 +42,8 @@ def call_hunter(method:str ,url:str, **kwargs):
         return httpx.put(url, **kwargs)
     elif(method=="delete"):
         return httpx.delete(url, **kwargs)
+    else:
+        raise Exception("Invalid http method")
 
 
 @app.post("/leads",
@@ -61,6 +63,7 @@ def create_lead(
     ),
 ):
     response = call_hunter(
+        "post",
         BASE_URL+"/leads",
         json=parse_lead(lead),
         headers={"X-API-KEY" : config("API_KEY")}
@@ -79,6 +82,7 @@ def retrieve_lead(
     ),
 ):
     response = call_hunter(
+        "get",
         BASE_URL+"/leads/"+str(id),
         headers={"X-API-KEY" : config("API_KEY")}
     )
@@ -106,6 +110,7 @@ def update_lead(
     ),
 ):
     response = call_hunter(
+        "put",
         BASE_URL+"/leads/"+str(id),
         json=parse_lead(lead),
         headers={"X-API-KEY" : config("API_KEY")}
@@ -124,6 +129,7 @@ def delete_lead(
     ),
 ):
     response = call_hunter(
+        "delete",
         BASE_URL+"/leads/"+str(id),
         headers={"X-API-KEY" : config("API_KEY")}
     )
