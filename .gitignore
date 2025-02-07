@@ -1,6 +1,6 @@
 **/__pycache__/
 
-
+__init__.py
 .env
 .ruff_cache
 .pytest_cache
