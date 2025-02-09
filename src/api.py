@@ -1,8 +1,7 @@
-from typing import Any, Dict
-
 import httpx
 from decouple import config
 from fastapi import Body, FastAPI, HTTPException, Path
+from pydantic import BaseModel
 
 BASE_URL = "https://api.hunter.io/v2"
 
@@ -13,34 +12,61 @@ app = FastAPI(
     docs_url="/docs",  # Custom docs URL
 )
 
+class Lead(BaseModel):
+    email : str
+    first_name: str
+    last_name: str
+    position: str
+    company: str
+
 def validated_response(response : httpx.Response):
     if not response.is_success:
         raise HTTPException(
             status_code=response.status_code,
-            detail= response.json()
+            detail= response.json()['details']
         )
 
     return response.json()
+
+def parse_lead(lead:Lead):
+    data = lead.model_dump()
+    return data
+
+
+def call_hunter(method:str ,url:str, **kwargs):
+    if(method=="get"):
+        return httpx.get(url, **kwargs)
+    elif(method=="post"):
+        return httpx.post(url, **kwargs)
+    elif(method=="put"):
+        return httpx.put(url, **kwargs)
+    elif(method=="delete"):
+        return httpx.delete(url, **kwargs)
+    else:
+        raise Exception("Invalid http method")
 
 
 @app.post("/leads",
     description = "Create new lead",
 )
+
 def create_lead(
-    lead_info : Dict[str,Any]= Body(
+    lead : Lead= Body(
         title="Fields of the lead",
-        example={
+        examples={
             "email": "alexis@reddit.com",
             "first_name": "Alexis",
             "last_name": "Ohanian",
             "position": "Cofounder",
             "company": "Reddit",
         }
-    )
+    ),
 ):
-    response = httpx.post(
-        BASE_URL+"/leads?api_key="+config["API_KEY"],
-        lead_info
+    response = call_hunter(
+        "post",
+        BASE_URL+"/leads",
+        json=parse_lead(lead),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
@@ -53,37 +79,41 @@ def retrieve_lead(
     id:int = Path(
         title="lead id",
         gt=0
-    )
+    ),
 ):
-    response = httpx.get(
-        BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"]
+    response = call_hunter(
+        "get",
+        BASE_URL+"/leads/"+str(id),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
 
 @app.put(
     "/leads/{id}",
-    description = "Modify specified fields of a lead"
+    description = "Modify specified fields of a lead",
 )
 def update_lead(
     id:int = Path(
         title="lead id",
         gt=0
     ),
-    lead_info : Dict[str,Any]= Body(
-        title="Fields of the lead",
-        example={
+    lead : Lead= Body(
+        title="Fields of the lead to be modified",
+        examples={
             "email": "alexis@reddit.com",
             "first_name": "Alexis",
             "last_name": "Ohanian",
             "position": "Cofounder",
             "company": "Reddit",
         }
-    )
+    ),
 ):
-    response = httpx.put(
-        BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"],
-        lead_info
+    response = call_hunter(
+        "put",
+        BASE_URL+"/leads/"+str(id),
+        json=parse_lead(lead),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
@@ -98,8 +128,10 @@ def delete_lead(
         gt=0
     ),
 ):
-    response = httpx.delete(
-        BASE_URL+"/leads/"+str(id)+"?api_key="+config["API_KEY"],
+    response = call_hunter(
+        "delete",
+        BASE_URL+"/leads/"+str(id),
+        headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
 
