@@ -1,6 +1,7 @@
 import httpx
 from decouple import config
 from fastapi import Body, FastAPI, HTTPException, Path
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
 BASE_URL = "https://api.hunter.io/v2"
@@ -134,6 +135,11 @@ def delete_lead(
         headers={"X-API-KEY" : config("API_KEY")}
     )
     return validated_response(response)
+
+
+@app.get("/health", response_class=PlainTextResponse)
+async def health_check():
+    return "healthy"
 
 
 
