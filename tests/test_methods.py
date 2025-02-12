@@ -1,7 +1,6 @@
 import pytest 
 import httpx
 from fastapi.testclient import TestClient
-from src.api import app , BASE_URL
 import logging
 
 
