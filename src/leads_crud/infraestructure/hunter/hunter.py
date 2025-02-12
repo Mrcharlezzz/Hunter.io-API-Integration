@@ -7,8 +7,9 @@ from mappers import HunterMapper
 
 BASE_URL = "https://api.hunter.io/v2"
 
-def headers():
-    return config("API_KEY")
+client = httpx.AsyncClient()
+header = config("API_KEY")
+
 
 def validated_response(response : httpx.Response):
     if not response.is_success:
@@ -20,35 +21,35 @@ def validated_response(response : httpx.Response):
     return response.json()
 
 class HunterLeadCrud(ILeadCRUD):
-    def create(lead:Lead):
-        response = httpx.post(
+    async def create(lead:Lead):
+        response = await client.post(
             BASE_URL+"/leads",
             HunterMapper.to_api(lead),
-            headers=headers()
+            headers=header
         )
         response = validated_response(response)
         return HunterMapper.to_entity(response)
 
-    def retrieve(id):
-        response = httpx.put(
+    async def retrieve(id):
+        response = await client.put(
             BASE_URL+"/leads/"+str(id),
-            headers=headers(),
+            headers=header,
         )
         response = validated_response(response)
         return HunterMapper.to_entity(response)
 
-    def update(id, lead):
-        response = httpx.post(
+    async def update(id, lead):
+        response = await client.post(
             BASE_URL+"/leads/"+str(id),
             HunterMapper.to_api(lead),
-            headers=headers()
+            headers=header
         )
         response = validated_response(response)
 
-    def delete(id):
-        response = httpx.put(
+    async def delete(id):
+        response = await client.put(
             BASE_URL+"/leads/"+str(id),
-            headers=headers(),
+            headers=header,
         )
         response = validated_response(response)
 
