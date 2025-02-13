@@ -5,7 +5,19 @@ from domain.lead import Lead
 
 class HunterMapper:
     def to_api(lead:Lead) -> Dict[str,Any]:
-        return lead.model_dump()
+        result = {}
+
+        if lead.email is not None:
+            result["email"] = lead.email
+        if lead.first_name is not None:
+            result["first_name"] = lead.first_name
+        if lead.last_name is not None:
+            result["last_name"] = lead.last_name
+        if lead.position is not None:
+            result["position"] = lead.position
+        if lead.company is not None:
+            result["company"] = lead.company
+        return result
 
     def to_entity(lead_info : Dict[str,Any]) -> Lead:
         data=lead_info["data"]
