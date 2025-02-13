@@ -4,7 +4,7 @@ from domain.repositories import ILeadCRUD
 from fastapi import FastAPI, Path
 from infraestructure.hunter.hunter import HunterLeadCrud
 from mappers import EndpointMapper
-from serializers import ApiInput, ApiOutput
+from serializers import LeadInput, LeadOutput
 
 
 # Configure dependency injection
@@ -23,10 +23,10 @@ app = FastAPI(
 )
 
 @app.post("/leads",
-    response_model=ApiOutput,
+    response_model=LeadOutput,
     description = "Create new lead",
 )
-def create(input : ApiInput) -> ApiOutput:
+def create(input : LeadInput) -> LeadOutput:
     lead = EndpointMapper.to_entity(input)
     service = Service()
     outlead = service.create(lead)
@@ -34,7 +34,7 @@ def create(input : ApiInput) -> ApiOutput:
     return output
 
 @app.get("/leads/{id}",
-    response_model=ApiOutput,
+    response_model=LeadOutput,
     description = "Retrieve lead by id",
 )
 def retrieve(
@@ -42,7 +42,7 @@ def retrieve(
     title="lead id",
     gt=0
     ),
-) -> ApiOutput:
+) -> LeadOutput:
 
     service = Service()
     outlead = service.retrieve(id)
@@ -54,7 +54,7 @@ def retrieve(
     description = "Modify specified fields of a lead",
 )
 def update(
-    input:ApiInput,
+    input:LeadInput,
     id:int = Path(
         title="lead id",
         gt=0

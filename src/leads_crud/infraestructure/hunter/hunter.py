@@ -5,10 +5,10 @@ from domain.repositories import ILeadCRUD
 from fastapi import HTTPException
 from mappers import HunterMapper
 
-BASE_URL = "https://api.hunter.io/v2"
+BASE_URL = config("BASE_URL")
+header = config("API_KEY")
 
 client = httpx.AsyncClient()
-header = config("API_KEY")
 
 
 def validated_response(response : httpx.Response):

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class ApiInput(BaseModel):
+class LeadInput(BaseModel):
     """
     Represents input data for a lead in the API.
     Allows partial information about a potential business contact.
@@ -28,7 +28,7 @@ class ApiInput(BaseModel):
     )
 
 
-class ApiOutput(BaseModel):
+class LeadOutput(BaseModel):
     """
     Represents the full lead information returned by the API.
     Includes all input fields plus additional metadata.

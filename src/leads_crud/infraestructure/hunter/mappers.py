@@ -8,12 +8,13 @@ class HunterMapper:
         return lead.model_dump()
 
     def to_entity(lead_info : Dict[str,Any]) -> Lead:
+        data=lead_info["data"]
         lead = Lead(
-            id=lead_info["id"],
-            email=lead_info["email"],
-            first_name=lead_info["first_name"],
-            last_name=lead_info["last_name"],
-            position=lead_info["position"],
-            company=lead_info["company"],
+            id=data["id"],
+            email=data["email"],
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            position=data["position"],
+            company=data["company"],
         )
         return lead

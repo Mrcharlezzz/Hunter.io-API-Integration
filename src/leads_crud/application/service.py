@@ -5,7 +5,7 @@ from domain.repositories import ILeadCRUD
 
 class Service:
     repo_instance: ILeadCRUD
-    
+
     def __init__(self):
         self.repo_instance = inject.instance(ILeadCRUD)
 
