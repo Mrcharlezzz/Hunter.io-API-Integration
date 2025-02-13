@@ -22,6 +22,12 @@ def validated_response(response : httpx.Response):
 
 class HunterLeadCrud(ILeadCRUD):
     async def create(lead:Lead):
+        payload = HunterMapper.to_api(lead)
+        if("email" not in payload):
+            raise HTTPException(
+                status_code=400,
+                detail="required field 'email' missing"
+            )
         response = await client.post(
             BASE_URL+"/leads",
             HunterMapper.to_api(lead),

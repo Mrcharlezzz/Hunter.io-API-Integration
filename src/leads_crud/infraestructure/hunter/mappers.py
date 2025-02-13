@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
 from domain.lead import Lead
+from fastapi import HTTPException
 
 
 class HunterMapper:
@@ -17,6 +18,12 @@ class HunterMapper:
             result["position"] = lead.position
         if lead.company is not None:
             result["company"] = lead.company
+
+        if(result=={}):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid data provided. Empty payload."
+            )
         return result
 
     def to_entity(lead_info : Dict[str,Any]) -> Lead:
