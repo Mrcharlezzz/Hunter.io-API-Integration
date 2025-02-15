@@ -1,15 +1,16 @@
 import inject
-from application.service import Service
-from domain.repositories import ILeadCRUD
 from fastapi import FastAPI, Path
-from infraestructure.hunter.hunter import HunterLeadCrud
-from mappers import EndpointMapper
-from serializers import LeadInput, LeadOutput
+
+from src.leads_crud.application.service import Service
+from src.leads_crud.domain.repositories import ILeadCRUD
+from src.leads_crud.infraestructure.hunter.hunter import HunterLeadCrud
+from src.leads_crud.presentation.mappers import EndpointMapper
+from src.leads_crud.presentation.serializers import LeadInput, LeadOutput
 
 
 # Configure dependency injection
 def configure_injection(binder):
-    binder.bind(ILeadCRUD, to=HunterLeadCrud())
+    binder.bind(ILeadCRUD, HunterLeadCrud())
 
 # Initialize injection
 inject.configure(configure_injection)
@@ -26,10 +27,10 @@ app = FastAPI(
     response_model=LeadOutput,
     description = "Create new lead",
 )
-def create(input : LeadInput) -> LeadOutput:
+async def create(input : LeadInput) -> LeadOutput:
     lead = EndpointMapper.to_entity(input)
     service = Service()
-    outlead = service.create(lead)
+    outlead =  await service.create(lead)
     output = EndpointMapper.to_client(outlead)
     return output
 
@@ -37,7 +38,7 @@ def create(input : LeadInput) -> LeadOutput:
     response_model=LeadOutput,
     description = "Retrieve lead by id",
 )
-def retrieve(
+async def retrieve(
     id:int = Path(
     title="lead id",
     gt=0
@@ -45,7 +46,7 @@ def retrieve(
 ) -> LeadOutput:
 
     service = Service()
-    outlead = service.retrieve(id)
+    outlead = await service.retrieve(id)
     output = EndpointMapper.to_client(outlead)
     return output
 
@@ -53,7 +54,7 @@ def retrieve(
     "/leads/{id}",
     description = "Modify specified fields of a lead",
 )
-def update(
+async def update(
     input:LeadInput,
     id:int = Path(
         title="lead id",
@@ -62,21 +63,21 @@ def update(
 ):
     lead = EndpointMapper.to_entity(input)
     service = Service()
-    service.update(id=id, lead=lead)
+    await service.update(id=id, lead=lead)
     return
 
 @app.delete(
     "/leads/{id}",
     description = "Delete a lead",
 )
-def delete(
+async def delete(
     id:int = Path(
         title="lead id",
         gt=0
     ),
 ):
     service = Service()
-    service.update(id=id)
+    await service.delete(id=id)
     return
 
 

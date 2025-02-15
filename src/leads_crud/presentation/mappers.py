@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from domain.lead import Lead
-from serializers import LeadInput, LeadOutput
+from src.leads_crud.domain.lead import Lead
+from src.leads_crud.presentation.serializers import LeadInput, LeadOutput
 
 
 class EndpointMapper:

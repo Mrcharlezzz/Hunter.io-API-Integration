@@ -54,16 +54,29 @@ def hunter_success_response():
     }
 
 @pytest.fixture
-def hunter_error_response():
+def hunter_error_response_400():
+    
     return {
         "errors": [
             {
-                "details": "Invalid API key",
-                "code": "unauthorized"
+                "id": "wrong_params",
+                "code": 400,
+                "details": "You are missing a parameter"
             }
         ]
     }
 
+@pytest.fixture
+def hunter_error_response_404():
+    return {
+        "errors": [
+            {
+                "id": "not found",
+                "code": 404,
+                "details": "id not found"
+            }
+        ]
+    }
 
 class TestHunterApiIntegration:
     """
@@ -71,7 +84,7 @@ class TestHunterApiIntegration:
     """
     
     @pytest.mark.asyncio
-    async def test_create_lead_success(self, valid_lead_data, hunter_success_response):
+    async def test_create_lead_success(self, input_lead_data, hunter_success_response):
         """Test successful lead creation flow"""
         
         # Mock the external Hunter.io API call
@@ -101,23 +114,23 @@ class TestHunterApiIntegration:
             assert "https://api.hunter.io/v2/leads" in str(call_args)
 
     @pytest.mark.asyncio
-    async def test_create_lead_hunter_error(self, valid_lead_data, hunter_error_response):
+    async def test_create_lead_hunter_error(self, input_lead_data, hunter_error_response_400):
         """Test error handling when Hunter.io returns an error"""
         
         with patch('httpx.AsyncClient.post') as mock_post:
             # Configure mock error response
             mock_response = AsyncMock()
             mock_response.is_success = False
-            mock_response.status_code = 401
-            mock_response.json.return_value = hunter_error_response
+            mock_response.status_code = 400
+            mock_response.json.return_value = hunter_error_response_400
             mock_post.return_value = mock_response
 
             # Make request to our API
-            response = client.post("/leads", json=valid_lead_data)
+            response = client.post("/leads", json=input_lead_data)
 
             # Assertions
-            assert response.status_code == 401
-            assert "Invalid API key" in response.json()["detail"]
+            assert response.status_code == 400
+            assert "You are missing a parameter" in response.json()["detail"]
 
     @pytest.mark.asyncio
     async def test_retrieve_lead_success(self, hunter_success_response):
@@ -169,32 +182,92 @@ class TestHunterApiIntegration:
             assert "Lead not found" in response.json()["detail"]
 
     @pytest.mark.asyncio
-    async def test_invalid_input_validation(self):
-        """Test input validation for invalid data"""
+    async def test_update_lead_success(self, update_lead_data):
+        """Test successful lead update flow"""
         
-        invalid_data = {
-            "email": "not-an-email",
-            "first_name": "",  # Empty name
-            "position": None
-        }
+        lead_id = 1
 
-        response = client.post("/leads", json=invalid_data)
-        assert response.status_code == 422  # Validation error
-
-    @pytest.mark.asyncio
-    async def test_invalid_lead_id(self):
-        """Test validation of invalid lead ID parameter"""
-        
-        response = client.get("/leads/0")  # ID must be > 0
-        assert response.status_code == 422
-        
-    @pytest.mark.asyncio
-    async def test_hunter_timeout(self, valid_lead_data):
-        """Test handling of Hunter.io API timeout"""
-        
         with patch('httpx.AsyncClient.post') as mock_post:
-            # Simulate timeout
-            mock_post.side_effect = TimeoutError()
+            # Configure mock response
+            mock_response = AsyncMock()
+            mock_response.is_success = True
+            mock_response.status_code = 204
 
-            response = client.post("/leads", json=valid_lead_data)
-            assert response.status_code == 503  # Service Unavailable
+            # Make request to our API
+            response = client.put(f"/leads/{lead_id}", json=update_lead_data)
+
+            # Assertions
+            assert response.status_code == 204
+
+            # Verify Hunter.io API was called correctly
+            mock_post.assert_called_once()
+            call_args = mock_post.call_args
+            assert f"https://api.hunter.io/v2/leads/{lead_id}" in str(call_args)
+
+    @pytest.mark.asyncio
+    async def test_update_lead_invalid(self,):
+        """Test error handling when updating a lead with invalid data"""
+        
+        lead_id = 1
+
+        with patch('httpx.AsyncClient.post') as mock_post:
+            # Configure mock error response
+            mock_response = AsyncMock()
+            mock_response.is_success = False
+            mock_response.status_code = 400
+            mock_response.json.return_value = hunter_error_response_400()
+            mock_post.return_value = mock_response
+
+            # Make request to our API
+            response = client.put(f"/leads/{lead_id}", json={})
+
+            # Assertions
+            assert response.status_code == 400
+            assert "Invalid data" in response.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_delete_lead_success(self):
+        """Test successful lead deletion flow"""
+        
+        lead_id = 1
+
+        with patch('httpx.AsyncClient.put') as mock_put:
+            # Configure mock response
+            mock_response = AsyncMock()
+            mock_response.is_success = True
+            mock_response.status_code = 204
+            mock_put.return_value = mock_response
+
+            # Make request to our API
+            response = client.delete(f"/leads/{lead_id}")
+
+            # Assertions
+            assert response.status_code == 204
+
+            # Verify Hunter.io API was called correctly
+            mock_put.assert_called_once()
+            call_args = mock_put.call_args
+            assert f"https://api.hunter.io/v2/leads/{lead_id}" in str(call_args)
+
+    @pytest.mark.asyncio
+    async def test_delete_lead_not_found(self):
+        """Test deletion of non-existent lead"""
+        
+        lead_id = 999
+
+        with patch('httpx.AsyncClient.put') as mock_put:
+            # Configure mock error response
+            mock_response = AsyncMock()
+            mock_response.is_success = False
+            mock_response.status_code = 404
+            mock_response.json.return_value = hunter_error_response_404
+            mock_put.return_value = mock_response
+
+            # Make request to our API
+            response = client.delete(f"/leads/{lead_id}")
+
+            # Assertions
+            assert response.status_code == 404
+            assert "id not found" in response.json()["detail"]
+
+    

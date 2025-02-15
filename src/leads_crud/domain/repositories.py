@@ -1,4 +1,4 @@
-from lead import Lead
+from src.leads_crud.domain.lead import Lead
 
 
 class ILeadCRUD:

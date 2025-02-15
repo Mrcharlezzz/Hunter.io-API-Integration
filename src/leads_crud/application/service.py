@@ -1,6 +1,7 @@
 import inject
-from domain.lead import Lead
-from domain.repositories import ILeadCRUD
+
+from src.leads_crud.domain.lead import Lead
+from src.leads_crud.domain.repositories import ILeadCRUD
 
 
 class Service:
