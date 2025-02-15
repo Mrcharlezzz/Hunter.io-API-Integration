@@ -22,10 +22,11 @@ async def validated_response(response : httpx.Response):
         logger.error(f"request failed: {response.status_code}")
         raise HTTPException(
             status_code=response.status_code,
-            detail= error_details['details']
+            detail= error_details['errors'][0]['details']
         )
 
-    return response.json()
+    data = await response.json()
+    return data
 
 class HunterLeadCrud(ILeadCRUD):
     async def create(self,lead:Lead) -> Lead:
@@ -37,7 +38,7 @@ class HunterLeadCrud(ILeadCRUD):
             )
         response = await client.post(
             BASE_URL+"/leads",
-            HunterMapper.to_api(lead),
+            json = HunterMapper.to_api(lead),
             headers=header
         )
         response = await validated_response(response)
@@ -54,7 +55,7 @@ class HunterLeadCrud(ILeadCRUD):
     async def update(self, id, lead):
         response = await client.put(
             BASE_URL+"/leads/"+str(id),
-            HunterMapper.to_api(lead),
+            json = HunterMapper.to_api(lead),
             headers=header
         )
         response = await validated_response(response)

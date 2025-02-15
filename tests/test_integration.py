@@ -30,6 +30,7 @@ def input_lead_data():
         "company": "Test Corp"
     }
 
+@pytest.fixture
 def expected_lead_data():
     return {
         "id": "1",
@@ -84,7 +85,7 @@ class TestHunterApiIntegration:
     """
     
     @pytest.mark.asyncio
-    async def test_create_lead_success(self, input_lead_data, hunter_success_response):
+    async def test_create_lead_success(self, input_lead_data, hunter_success_response, expected_lead_data):
         """Test successful lead creation flow"""
         
         # Mock the external Hunter.io API call
@@ -161,25 +162,25 @@ class TestHunterApiIntegration:
             assert f"https://api.hunter.io/v2/leads/{lead_id}" in str(call_args)
 
     @pytest.mark.asyncio
-    async def test_retrieve_lead_not_found(self):
+    async def test_retrieve_lead_not_found(self, hunter_error_response_404):
         """Test retrieval of non-existent lead"""
         
         lead_id = 999
 
-        with patch('httpx.AsyncClient.put') as mock_put:
+        with patch('httpx.AsyncClient.get') as mock_get:
             # Configure mock error response
             mock_response = AsyncMock()
             mock_response.is_success = False
             mock_response.status_code = 404
-            mock_response.json.return_value = {"details": "Lead not found"}
-            mock_put.return_value = mock_response
+            mock_response.json.return_value = hunter_error_response_404
+            mock_get.return_value = mock_response
 
             # Make request to our API
             response = client.get(f"/leads/{lead_id}")
 
             # Assertions
             assert response.status_code == 404
-            assert "Lead not found" in response.json()["detail"]
+            assert "id not found" in response.json()["detail"]
 
     @pytest.mark.asyncio
     async def test_update_lead_success(self, update_lead_data):
@@ -187,7 +188,7 @@ class TestHunterApiIntegration:
         
         lead_id = 1
 
-        with patch('httpx.AsyncClient.post') as mock_post:
+        with patch('httpx.AsyncClient.put') as mock_put:
             # Configure mock response
             mock_response = AsyncMock()
             mock_response.is_success = True
@@ -200,12 +201,12 @@ class TestHunterApiIntegration:
             assert response.status_code == 204
 
             # Verify Hunter.io API was called correctly
-            mock_post.assert_called_once()
-            call_args = mock_post.call_args
+            mock_put.assert_called_once()
+            call_args = mock_put.call_args
             assert f"https://api.hunter.io/v2/leads/{lead_id}" in str(call_args)
 
     @pytest.mark.asyncio
-    async def test_update_lead_invalid(self,):
+    async def test_update_lead_invalid(self,hunter_error_response_400):
         """Test error handling when updating a lead with invalid data"""
         
         lead_id = 1
@@ -215,7 +216,7 @@ class TestHunterApiIntegration:
             mock_response = AsyncMock()
             mock_response.is_success = False
             mock_response.status_code = 400
-            mock_response.json.return_value = hunter_error_response_400()
+            mock_response.json.return_value = hunter_error_response_400
             mock_post.return_value = mock_response
 
             # Make request to our API
@@ -231,12 +232,12 @@ class TestHunterApiIntegration:
         
         lead_id = 1
 
-        with patch('httpx.AsyncClient.put') as mock_put:
+        with patch('httpx.AsyncClient.delete') as mock_delete:
             # Configure mock response
             mock_response = AsyncMock()
             mock_response.is_success = True
             mock_response.status_code = 204
-            mock_put.return_value = mock_response
+            mock_delete.return_value = mock_response
 
             # Make request to our API
             response = client.delete(f"/leads/{lead_id}")
@@ -245,23 +246,23 @@ class TestHunterApiIntegration:
             assert response.status_code == 204
 
             # Verify Hunter.io API was called correctly
-            mock_put.assert_called_once()
-            call_args = mock_put.call_args
+            mock_delete.assert_called_once()
+            call_args = mock_delete.call_args
             assert f"https://api.hunter.io/v2/leads/{lead_id}" in str(call_args)
 
     @pytest.mark.asyncio
-    async def test_delete_lead_not_found(self):
+    async def test_delete_lead_not_found(self,hunter_error_response_404):
         """Test deletion of non-existent lead"""
         
         lead_id = 999
 
-        with patch('httpx.AsyncClient.put') as mock_put:
+        with patch('httpx.AsyncClient.delete') as mock_delete:
             # Configure mock error response
             mock_response = AsyncMock()
             mock_response.is_success = False
             mock_response.status_code = 404
             mock_response.json.return_value = hunter_error_response_404
-            mock_put.return_value = mock_response
+            mock_delete.return_value = mock_response
 
             # Make request to our API
             response = client.delete(f"/leads/{lead_id}")

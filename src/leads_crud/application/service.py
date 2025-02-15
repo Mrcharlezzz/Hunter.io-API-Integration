@@ -15,7 +15,7 @@ class Service:
     async def retrieve(self, id:int) -> Lead:
         return await self.repo_instance.retrieve(id)
     async def update(self, id:int , lead:Lead):
-        await self.repo_instance.retrieve(id,lead)
+        await self.repo_instance.update(id,lead)
     async def delete(self, id:int):
         await self.repo_instance.delete(id)
 

@@ -17,8 +17,8 @@ inject.configure(configure_injection)
 
 
 app = FastAPI(
-    title="Hunter.io API Integration",
-    description="API service for email discovery and verification using Hunter.io",
+    title="Lead API Integration",
+    description="API service for email discovery and verification",
     version="1.0.0",
     docs_url="/docs",  # Custom docs URL
 )
@@ -53,6 +53,7 @@ async def retrieve(
 @app.put(
     "/leads/{id}",
     description = "Modify specified fields of a lead",
+    status_code= 204
 )
 async def update(
     input:LeadInput,
@@ -69,6 +70,7 @@ async def update(
 @app.delete(
     "/leads/{id}",
     description = "Delete a lead",
+    status_code=204
 )
 async def delete(
     id:int = Path(
