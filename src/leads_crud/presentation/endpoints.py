@@ -1,7 +1,10 @@
 import inject
 from fastapi import FastAPI, Path
 
-from src.leads_crud.application.service import Service
+from src.leads_crud.application.service import CreateLeadService
+from src.leads_crud.application.service import RetrieveLeadService
+from src.leads_crud.application.service import UpdateLeadService
+from src.leads_crud.application.service import DeleteLeadService
 from src.leads_crud.domain.repositories import ILeadCRUD
 from src.leads_crud.infraestructure.hunter.hunter import HunterLeadCrud
 from src.leads_crud.presentation.mappers import EndpointMapper
@@ -29,8 +32,8 @@ app = FastAPI(
 )
 async def create(input : LeadInput) -> LeadOutput:
     lead = EndpointMapper.to_entity(input)
-    service = Service()
-    outlead =  await service.create(lead)
+    service = CreateLeadService()
+    outlead =  await service.execute(lead)
     output = EndpointMapper.to_client(outlead)
     return output
 
@@ -45,8 +48,8 @@ async def retrieve(
     ),
 ) -> LeadOutput:
 
-    service = Service()
-    outlead = await service.retrieve(id)
+    service = RetrieveLeadService()
+    outlead = await service.execute(id)
     output = EndpointMapper.to_client(outlead)
     return output
 
@@ -63,8 +66,8 @@ async def update(
     ),
 ):
     lead = EndpointMapper.to_entity(input)
-    service = Service()
-    await service.update(id=id, lead=lead)
+    service = UpdateLeadService()
+    await service.execute(id=id, lead=lead)
     return
 
 @app.delete(
@@ -78,8 +81,8 @@ async def delete(
         gt=0
     ),
 ):
-    service = Service()
-    await service.delete(id=id)
+    service = DeleteLeadService()
+    await service.execute(id=id)
     return
 
 

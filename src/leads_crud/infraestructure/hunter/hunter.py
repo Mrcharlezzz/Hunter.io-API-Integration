@@ -1,5 +1,3 @@
-import logging
-
 import httpx
 from decouple import config
 from fastapi import HTTPException
@@ -13,13 +11,9 @@ header = {"X-API-KEY": config("API_KEY")}
 
 client = httpx.AsyncClient()
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
 async def validated_response(response : httpx.Response):
     if not response.is_success:
         error_details = await response.json()
-        logger.error(f"request failed: {response.status_code}")
         raise HTTPException(
             status_code=response.status_code,
             detail= error_details['errors'][0]['details']

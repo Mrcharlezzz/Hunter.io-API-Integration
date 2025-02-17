@@ -5,6 +5,7 @@ __init__.py
 .ruff_cache
 .pytest_cache
 .qodo
+.coverage
 
 
 

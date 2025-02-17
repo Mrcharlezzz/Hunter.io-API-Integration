@@ -211,20 +211,20 @@ class TestHunterApiIntegration:
         
         lead_id = 1
 
-        with patch('httpx.AsyncClient.post') as mock_post:
+        with patch('httpx.AsyncClient.put') as mock_put:
             # Configure mock error response
             mock_response = AsyncMock()
             mock_response.is_success = False
             mock_response.status_code = 400
             mock_response.json.return_value = hunter_error_response_400
-            mock_post.return_value = mock_response
+            mock_put.return_value = mock_response
 
             # Make request to our API
             response = client.put(f"/leads/{lead_id}", json={})
 
             # Assertions
             assert response.status_code == 400
-            assert "Invalid data" in response.json()["detail"]
+            assert 'All fields are None, invalid lead data' in response.json()["detail"]
 
     @pytest.mark.asyncio
     async def test_delete_lead_success(self):

@@ -4,7 +4,7 @@ tasks:
   api_up:
     desc: Build and run api_wrapper image with custom environment
     cmds:
-    - docker build -t lead_crud_integration:latest .
+    - docker build -t lead_crud_integration:latest ./src
     - docker run lead_crud_integration:latest
 
   test:

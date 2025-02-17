@@ -1,21 +1,35 @@
-import inject
-
+from src.base_lead_crud.service import BaseLeadService
 from src.leads_crud.domain.lead import Lead
-from src.leads_crud.domain.repositories import ILeadCRUD
 
 
-class Service:
-    repo_instance: ILeadCRUD
-
+class CreateLeadService(BaseLeadService):
     def __init__(self):
-        self.repo_instance = inject.instance(ILeadCRUD)
+        super().__init__()
 
-    async def create(self,lead: Lead) -> Lead:
+    async def execute(self, lead: Lead) -> Lead:
         return await self.repo_instance.create(lead)
-    async def retrieve(self, id:int) -> Lead:
+
+
+class RetrieveLeadService(BaseLeadService):
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, id: int) -> Lead:
         return await self.repo_instance.retrieve(id)
-    async def update(self, id:int , lead:Lead):
-        await self.repo_instance.update(id,lead)
-    async def delete(self, id:int):
+
+
+class UpdateLeadService(BaseLeadService):
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, id: int, lead: Lead):
+        await self.repo_instance.update(id, lead)
+
+
+class DeleteLeadService(BaseLeadService):
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, id: int):
         await self.repo_instance.delete(id)
 
