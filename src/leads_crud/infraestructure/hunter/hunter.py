@@ -2,9 +2,9 @@ import httpx
 from decouple import config
 from fastapi import HTTPException
 
-from src.leads_crud.domain.lead import Lead
-from src.leads_crud.domain.repositories import ILeadCRUD
-from src.leads_crud.infraestructure.hunter.mappers import HunterMapper
+from leads_crud.domain.lead import Lead
+from leads_crud.domain.repositories import ILeadCRUD
+from leads_crud.infraestructure.hunter.mappers import HunterMapper
 
 BASE_URL = config("BASE_URL")
 header = {"X-API-KEY": config("API_KEY")}

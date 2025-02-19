@@ -2,8 +2,8 @@ from datetime import datetime
 from pydantic import ValidationError
 from fastapi import HTTPException
 
-from src.leads_crud.domain.lead import Lead
-from src.leads_crud.presentation.serializers import LeadInput, LeadOutput
+from leads_crud.domain.lead import Lead
+from leads_crud.presentation.serializers import LeadInput, LeadOutput
 
 
 class EndpointMapper:

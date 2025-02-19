@@ -1,14 +1,14 @@
 import inject
 from fastapi import FastAPI, Path
 
-from src.leads_crud.application.service import CreateLeadService
-from src.leads_crud.application.service import RetrieveLeadService
-from src.leads_crud.application.service import UpdateLeadService
-from src.leads_crud.application.service import DeleteLeadService
-from src.leads_crud.domain.repositories import ILeadCRUD
-from src.leads_crud.infraestructure.hunter.hunter import HunterLeadCrud
-from src.leads_crud.presentation.mappers import EndpointMapper
-from src.leads_crud.presentation.serializers import LeadInput, LeadOutput
+from leads_crud.application.service import CreateLeadService
+from leads_crud.application.service import RetrieveLeadService
+from leads_crud.application.service import UpdateLeadService
+from leads_crud.application.service import DeleteLeadService
+from leads_crud.domain.repositories import ILeadCRUD
+from leads_crud.infraestructure.hunter.hunter import HunterLeadCrud
+from leads_crud.presentation.mappers import EndpointMapper
+from leads_crud.presentation.serializers import LeadInput, LeadOutput
 
 
 # Configure dependency injection

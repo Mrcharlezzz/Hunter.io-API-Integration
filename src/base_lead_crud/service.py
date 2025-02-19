@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import inject
 
-from src.leads_crud.domain.repositories import ILeadCRUD
+from leads_crud.domain.repositories import ILeadCRUD
 
 
 class BaseLeadService(ABC):

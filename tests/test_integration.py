@@ -5,9 +5,9 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
-from src.leads_crud.presentation.endpoints import app
-from src.leads_crud.domain.lead import Lead
-from src.leads_crud.infraestructure.hunter.hunter import HunterLeadCrud
+from leads_crud.presentation.endpoints import app # type: ignore
+from leads_crud.domain.lead import Lead # type: ignore
+from leads_crud.infraestructure.hunter.hunter import HunterLeadCrud # type: ignore
 
 client = TestClient(app)
 

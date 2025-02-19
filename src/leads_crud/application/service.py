@@ -1,5 +1,5 @@
-from src.base_lead_crud.service import BaseLeadService
-from src.leads_crud.domain.lead import Lead
+from base_lead_crud.service import BaseLeadService
+from leads_crud.domain.lead import Lead
 
 
 class CreateLeadService(BaseLeadService):

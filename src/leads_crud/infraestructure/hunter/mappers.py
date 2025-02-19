@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from fastapi import HTTPException
 
-from src.leads_crud.domain.lead import Lead
+from leads_crud.domain.lead import Lead
 
 
 class HunterMapper:
