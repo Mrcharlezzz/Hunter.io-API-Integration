@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  api_up:
+    desc: Build and run api_wrapper image with custom environment
+    cmds:
+    - docker build -t lead_crud_integration:latest ./src
+    - docker run lead_crud_integration:latest
+
+  test:
+    desc: Run test coverage report in current directory in html format
+    cmds:
+      - pytest --cov=. --cov-report=html
