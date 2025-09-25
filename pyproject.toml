@@ -20,6 +20,7 @@ lint.ignore = [
     "E501",  # Line too long
     "B008",  # Do not perform function calls in argument defaults
     "B006",  # Do not use mutable data structures for argument defaults
+    "I001",  # Unorganized imports
 ]
 
 exclude = [
