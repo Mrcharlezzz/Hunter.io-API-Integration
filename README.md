@@ -4,7 +4,7 @@
 
 This API service provides seamless integration with Hunter.io, enabling companies to leverage advanced email verification, discovery, and enrichment capabilities programmatically.
 
-## 🚀 Features
+## Features
 
 ### Lead Management API
 
@@ -56,22 +56,7 @@ Our Hunter.io API Integration provides a robust set of endpoints for managing le
   - Validates lead ID before deletion
   - Provides confirmation of deletion
 
-## Prerequisites
-
-not defined
-
-## Installation
-
-not defined
-
-## Usage
-
-not defined
-
-### Endpoints
-
-not defined
 
 ## Support
 
-Contact: carlos.mab@avangenio.com
+Contact: calfonsoba@constructor.university
